@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Monitor UI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+        }
+        .log-entry {
+            background-color: #f4f4f4;
+            padding: 5px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+        .error {
+            color: red;
+        }
+        #log-results {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Log Retriever</h1>
+    <form id="log-form">
+        <label for="file">Log File Name:</label><br>
+        <input type="text" id="file" name="file" placeholder="syslog.log" required><br><br>
+
+        <label for="keyword">Keyword (Optional):</label><br>
+        <input type="text" id="keyword" name="keyword" placeholder="error"><br><br>
+
+        <label for="limit">Limit (Optional):</label><br>
+        <input type="number" id="limit" name="limit" placeholder="100" min="1"><br><br>
+
+        <button type="submit">Get Logs</button>
+    </form>
+
+    <div id="log-results"></div>
+    <div id="error-message" class="error"></div>
+
+    <script>
+        const form = document.getElementById('log-form');
+        const logResults = document.getElementById('log-results');
+        const errorMessage = document.getElementById('error-message');
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const file = document.getElementById('file').value;
+            const keyword = document.getElementById('keyword').value;
+            const limit = document.getElementById('limit').value;
+
+            // Reset previous results and error message
+            logResults.innerHTML = '';
+            errorMessage.textContent = '';
+
+            try {
+                const response = await fetch(`http://localhost:3000/logs?file=${file}&keyword=${keyword}&limit=${limit}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    if (data.length === 0) {
+                        logResults.innerHTML = '<p>No matching logs found.</p>';
+                    } else {
+                        data.forEach(line => {
+                            const div = document.createElement('div');
+                            div.classList.add('log-entry');
+                            div.textContent = line;
+                            logResults.appendChild(div);
+                        });
+                    }
+                } else {
+                    throw new Error(data.error || 'Error retrieving logs');
+                }
+            } catch (error) {
+                errorMessage.textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
+
+</body>
+</html>
