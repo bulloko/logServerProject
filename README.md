@@ -4,10 +4,12 @@
 This service provides a REST API to retrieve logs from `/var/log` on a Unix-based machine.
 
 ## Installation
-1. Install dependencies:
+1. cd log-monitor
+
+2. Install dependencies:
 npm install
 
-2. Start the server:
+3. Start the server:
 node server.js
 
 ## Usage
